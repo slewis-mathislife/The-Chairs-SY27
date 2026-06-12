@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DC or API?  ·  The Chairs Kickoff</title>
+<style>
+  :root {
+    --blue-deep: #0E2A4A;
+    --blue-brand: #13B5EA;
+    --blue-tint: #E8EFF7;
+    --green-correct: #1E8A5F;
+    --red-incorrect: #B23A48;
+    --text-dark: #111111;
+    --text-body: #333333;
+    --text-muted: #777777;
+    --white: #FFFFFF;
+    --shadow: 0 2px 8px rgba(14, 42, 74, 0.08);
+    --shadow-hover: 0 4px 16px rgba(14, 42, 74, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Calibri, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: #FAFBFD;
+    color: var(--text-body);
+    line-height: 1.4;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--blue-deep);
+    color: var(--white);
+    padding: 24px 32px;
+    text-align: center;
+  }
+  header .tag {
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--blue-brand);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: 38px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  header p {
+    font-size: 16px;
+    opacity: 0.85;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar-container {
+    background: var(--blue-deep);
+    padding: 0 32px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .progress-label {
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 110px;
+  }
+  .progress-track {
+    flex: 1;
+    max-width: 480px;
+    height: 8px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--blue-brand);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  .stage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  @media (max-width: 900px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+
+  .section-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--blue-brand);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  /* DECK (unsorted cards) */
+  .deck {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--white);
+    border: 2px solid var(--blue-brand);
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .card .card-num {
+    font-size: 12px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: var(--blue-brand);
+    margin-bottom: 8px;
+  }
+
+  .card .card-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 14px;
+    line-height: 1.35;
+  }
+
+  .card .card-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .card button {
+    flex: 1;
+    background: var(--white);
+    border: 1.5px solid var(--blue-brand);
+    color: var(--blue-brand);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .card button:hover {
+    background: var(--blue-brand);
+    color: var(--white);
+  }
+
+  .card button.selected {
+    background: var(--blue-deep);
+    border-color: var(--blue-deep);
+    color: var(--white);
+  }
+
+  /* PILES (sorted cards) */
+  .piles {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pile {
+    background: var(--blue-tint);
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 100px;
+  }
+
+  .pile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .pile-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    letter-spacing: 1px;
+  }
+
+  .pile-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .pile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sorted-card {
+    background: var(--white);
+    padding: 10px 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--blue-brand);
+    font-size: 14px;
+    color: var(--text-dark);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .sorted-card:hover {
+    background: #FAFBFD;
+    transform: translateX(2px);
+  }
+
+  .sorted-card .undo {
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .sorted-card.correct {
+    border-left-color: var(--green-correct);
+    background: #F0F9F4;
+  }
+
+  .sorted-card.incorrect {
+    border-left-color: var(--red-incorrect);
+    background: #FCF1F2;
+  }
+
+  .sorted-card .why {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .sorted-card .correct-label {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .sorted-card.correct .correct-label { color: var(--green-correct); }
+  .sorted-card.incorrect .correct-label { color: var(--red-incorrect); }
+
+  /* CHECK / RESET BAR */
+  .check-bar {
+    margin-top: 32px;
+    padding: 24px;
+    background: var(--blue-tint);
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .check-bar h2 {
+    font-size: 22px;
+    color: var(--blue-deep);
+    margin-bottom: 8px;
+  }
+
+  .check-bar p {
+    font-size: 15px;
+    color: var(--text-body);
+    margin-bottom: 18px;
+  }
+
+  .btn-primary {
+    background: var(--blue-brand);
+    color: var(--white);
+    border: none;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 14px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--blue-deep);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(19, 181, 234, 0.3);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--blue-brand);
+    border: 1.5px solid var(--blue-brand);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    margin-left: 12px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-secondary:hover {
+    background: var(--blue-brand);
+    color: var(--white);
+  }
+
+  /* SCORE DISPLAY */
+  .score {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    margin: 8px 0;
+  }
+
+  .score-detail {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .empty-deck {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 15px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">THE CHAIRS KICKOFF  ·  SY27</div>
+  <h1>DC or API?</h1>
+  <p>Sort all 20 scenarios into DC, API, or BOTH. Then check your answers and discuss any that surprised you.</p>
+</header>
+
+<div class="progress-bar-container">
+  <div class="progress-label" id="progressLabel">0 of 20 sorted</div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<main>
+  <div class="stage">
+    <!-- DECK -->
+    <div>
+      <div class="section-label">The Deck</div>
+      <div class="deck" id="deck"></div>
+    </div>
+
+    <!-- PILES -->
+    <div>
+      <div class="section-label">Your Sort</div>
+      <div class="piles">
+        <div class="pile">
+          <div class="pile-header">
+            <div class="pile-name">DC</div>
+            <div class="pile-count" id="countDC">0 cards</div>
+          </div>
+          <div class="pile-cards" id="pileDC"></div>
+        </div>
+        <div class="pile">
+          <div class="pile-header">
+            <div class="pile-name">API</div>
+            <div class="pile-count" id="countAPI">0 cards</div>
+          </div>
+          <div class="pile-cards" id="pileAPI"></div>
+        </div>
+        <div class="pile">
+          <div class="pile-header">
+            <div class="pile-name">BOTH</div>
+            <div class="pile-count" id="countBOTH">0 cards</div>
+          </div>
+          <div class="pile-cards" id="pileBOTH"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECK / RESET BAR -->
+  <div class="check-bar" id="checkBar">
+    <h2 id="checkTitle">Sort all 20 cards to check your answers.</h2>
+    <p id="checkSubtitle">Tap DC, API, or BOTH on each card to send it to a pile. Tap a card in a pile to send it back.</p>
+    <button class="btn-primary" id="checkBtn" disabled onclick="checkAnswers()">CHECK ANSWERS</button>
+    <button class="btn-secondary" id="resetBtn" onclick="resetGame()" style="display:none">PLAY AGAIN</button>
+  </div>
+</main>
+
+<footer>
+  Newark Collegiate  ·  The Chairs Kickoff  ·  SY27
+</footer>
+
+<script>
+const SCENARIOS = [
+  { id: 1,  text: "Plan and facilitate the weekly CTM for AP US History",                                     answer: "DC",   why: "DCs own CTMs for AP, 12th, and elective courses." },
+  { id: 2,  text: "Conduct the year-end performance evaluation for a teacher in the department",              answer: "API",  why: "Formal performance evaluation is a management function." },
+  { id: 3,  text: "Walk into a classroom mid-period and give real-time feedback on a discussion move",        answer: "DC",   why: "Real-time, in-the-moment coaching is the DC's mode." },
+  { id: 4,  text: "Decide whether to put a teacher on a formal coaching cycle",                               answer: "API",  why: "Formal coaching cycles are a management decision." },
+  { id: 5,  text: "Co-lead the weekly department meeting",                                                     answer: "BOTH", why: "API owns the meeting; DC co-leads portions tied to content vision." },
+  { id: 6,  text: "Lead the Looking at Student Work (LASW) protocol in CTM",                                  answer: "DC",   why: "LASW happens inside CTMs and is led by the chair." },
+  { id: 7,  text: "Make the final hiring decision for a teacher in the department",                            answer: "API",  why: "Hiring decisions sit with the formal manager: the API." },
+  { id: 8,  text: "Set the bar for what excellent instruction looks like in this content",                    answer: "DC",   why: "Holding the content vision is core DC territory." },
+  { id: 9,  text: "Bring assessment data trends to the weekly DC/API O3",                                     answer: "API",  why: "APIs bring the data lens; DCs bring the teacher-and-classroom lens." },
+  { id: 10, text: "Bring teammates of concern, with specific evidence, to the weekly O3",                     answer: "DC",   why: "DCs surface concerns from real-time coaching; API decides response." },
+  { id: 11, text: "Approve the course scope and sequence",                                                     answer: "API",  why: "Approval sits with the API as manager. DCs build and recommend." },
+  { id: 12, text: "Maintain ETR Tier 3 status as the department's model classroom",                           answer: "DC",   why: "The DC is anchored as a master teacher. Modeling is part of the role." },
+  { id: 13, text: "Decide whether to renew a teacher's contract for next year",                                answer: "API",  why: "Renewal is a management decision the API owns." },
+  { id: 14, text: "Plan the next department meeting's developmental objective",                                answer: "BOTH", why: "Co-planned in the weekly O3. API owns; DC co-leads the content piece." },
+  { id: 15, text: "Real-time hallway coaching with a teacher after class",                                     answer: "DC",   why: "Practice and proximity. Hallway coaching is the DC's mode." },
+  { id: 16, text: "Write the formal observation write-up",                                                     answer: "API",  why: "Formal documentation lives with the API." },
+  { id: 17, text: "Surface curricular trends across the department to the API",                               answer: "DC",   why: "DCs see patterns from their CTM and content vantage point first." },
+  { id: 18, text: "Be the model for what great teaching looks like in this content",                          answer: "DC",   why: "Master teacher and model classroom. The model is the DC." },
+  { id: 19, text: "Hold the department to deadlines (lesson plans submitted, data due)",                      answer: "BOTH", why: "DC holds peer accountability; API holds formal accountability." },
+  { id: 20, text: "Lead a teacher into a formal coaching cycle after concerns escalate",                       answer: "API",  why: "Formal coaching cycle is management territory. DC surfaces; API leads." },
+];
+
+// state: scenario.id -> "DC" | "API" | "BOTH" | null
+let assignments = {};
+let isChecked = false;
+
+function init() {
+  assignments = {};
+  isChecked = false;
+  SCENARIOS.forEach(s => assignments[s.id] = null);
+  render();
+}
+
+function render() {
+  const deckEl = document.getElementById("deck");
+  const pileDC = document.getElementById("pileDC");
+  const pileAPI = document.getElementById("pileAPI");
+  const pileBOTH = document.getElementById("pileBOTH");
+
+  deckEl.innerHTML = "";
+  pileDC.innerHTML = "";
+  pileAPI.innerHTML = "";
+  pileBOTH.innerHTML = "";
+
+  let sortedCount = 0;
+  const piles = { DC: 0, API: 0, BOTH: 0 };
+
+  SCENARIOS.forEach(scenario => {
+    const assigned = assignments[scenario.id];
+
+    if (assigned === null) {
+      // Render in deck with action buttons
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="card-num">CARD ${String(scenario.id).padStart(2, "0")}  /  20</div>
+        <div class="card-text">${scenario.text}</div>
+        <div class="card-actions">
+          <button onclick="assign(${scenario.id}, 'DC')">DC</button>
+          <button onclick="assign(${scenario.id}, 'API')">API</button>
+          <button onclick="assign(${scenario.id}, 'BOTH')">BOTH</button>
+        </div>
+      `;
+      deckEl.appendChild(card);
+    } else {
+      // Render in the assigned pile
+      sortedCount++;
+      piles[assigned]++;
+      const targetEl = assigned === "DC" ? pileDC : (assigned === "API" ? pileAPI : pileBOTH);
+
+      const sorted = document.createElement("div");
+      sorted.className = "sorted-card";
+      if (isChecked) {
+        sorted.classList.add(assigned === scenario.answer ? "correct" : "incorrect");
+      }
+      sorted.onclick = () => unassign(scenario.id);
+
+      let extraHTML = "";
+      if (isChecked) {
+        if (assigned === scenario.answer) {
+          extraHTML = `
+            <span class="correct-label">✓ Correct</span>
+            <span class="why">${scenario.why}</span>
+          `;
+        } else {
+          extraHTML = `
+            <span class="correct-label">✗ Answer: ${scenario.answer}</span>
+            <span class="why">${scenario.why}</span>
+          `;
+        }
+      }
+
+      sorted.innerHTML = `
+        ${isChecked ? '' : '<span class="undo">×</span>'}
+        <div style="flex:1">
+          <strong>${scenario.id}.</strong> ${scenario.text}
+          ${extraHTML}
+        </div>
+      `;
+      targetEl.appendChild(sorted);
+    }
+  });
+
+  // Update counts
+  document.getElementById("countDC").textContent = `${piles.DC} card${piles.DC === 1 ? "" : "s"}`;
+  document.getElementById("countAPI").textContent = `${piles.API} card${piles.API === 1 ? "" : "s"}`;
+  document.getElementById("countBOTH").textContent = `${piles.BOTH} card${piles.BOTH === 1 ? "" : "s"}`;
+
+  // Update progress
+  document.getElementById("progressLabel").textContent = `${sortedCount} of 20 sorted`;
+  document.getElementById("progressFill").style.width = `${(sortedCount / 20) * 100}%`;
+
+  // Update check button + bar
+  const checkBtn = document.getElementById("checkBtn");
+  const checkTitle = document.getElementById("checkTitle");
+  const checkSubtitle = document.getElementById("checkSubtitle");
+  const resetBtn = document.getElementById("resetBtn");
+
+  if (isChecked) {
+    const correctCount = SCENARIOS.filter(s => assignments[s.id] === s.answer).length;
+    checkBtn.style.display = "none";
+    resetBtn.style.display = "inline-block";
+    checkTitle.innerHTML = `<div class="score">${correctCount} / 20</div><div class="score-detail">Talk through the ones you got wrong. That is where the conversation lives.</div>`;
+    checkSubtitle.style.display = "none";
+  } else {
+    checkBtn.style.display = "inline-block";
+    resetBtn.style.display = "none";
+    checkBtn.disabled = sortedCount < 20;
+    if (sortedCount < 20) {
+      checkTitle.textContent = `Sort all 20 cards to check your answers.`;
+      checkSubtitle.textContent = `${20 - sortedCount} more to go.`;
+    } else {
+      checkTitle.textContent = `Ready to check?`;
+      checkSubtitle.textContent = `Both of you happy with your sort? Lock it in.`;
+    }
+    checkSubtitle.style.display = "block";
+  }
+}
+
+function assign(id, pile) {
+  if (isChecked) return;
+  assignments[id] = pile;
+  render();
+}
+
+function unassign(id) {
+  if (isChecked) return;
+  assignments[id] = null;
+  render();
+}
+
+function checkAnswers() {
+  isChecked = true;
+  render();
+  // Scroll to top so they see results
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetGame() {
+  init();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+init();
+</script>
+
+</body>
+</html>
